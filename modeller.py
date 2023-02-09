@@ -2,49 +2,34 @@ import os
 import numpy as np
 import lda 
 import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+import csv
+import pandas as pd
+import gensim
+from gensim.utils import simple_preprocess
 
-folder = input("Input folder with .txt files: ")
-outputname = input("Input the name of the output file with .txt: ")
+filelocation = input("Input file location: ")
+name = input("Desired file name with .csv: ")
+files= [k for k in next(os.walk(f"{filelocation}"))][2]
+filenames = []
+content=[]
+for file in files:
+    with open(f"{filelocation}\\{file}", 'r', newline='') as source_file:
+        filenames.append(file)
+        lines = source_file.read()
+        content.append(lines)
 
-os.chdir(folder)
-names = os.listdir()
+data = {'Filename':filenames,
+        'Content':content}
 
-def read_files_into_string(filenames):
-  strings= []
-  for filename in filenames:
-    with open(f'{filename}', encoding ='latin-1') as f:
-      text_tokens = word_tokenize(f.read())
-      tokens_without_sw = [word for word in text_tokens if not word in stopwords.words()]
-      listToStr = ' '.join([str(elem) for elem in tokens_without_sw])
-      strings.append(listToStr)
-      print(filename + " added to strings")
-  return '\n'.join(strings)
+df = pd.DataFrame(data)
+df.to_csv(name, index=False)
 
-text = read_files_into_string(names)
-text = str(text)
-document_split = text.split('\n\n\n\n\n')
+# Coming back later
 
-from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer()
-X = vectorizer.fit_transform(document_split)
-vocabulary = vectorizer.get_feature_names()
-import lda
-model = lda.LDA(n_topics = 10, n_iter=1000, random_state=1)
-model.fit(X)
+hymns = pd.read_csv('hymns.csv')
+oldhymns = pd.read_csv('oldhymns.csv')
 
-topic_word = model.topic_word_
-n_top_words=50
-
-os.chdir("..")
-outfile = open(outputname, "w", encoding="latin-1")
-
-for i, topic_distribution in enumerate(topic_word):
-  topic_words = np.array(vocabulary)[np.argsort(topic_distribution)][:-(n_top_words+1):-1]
-  print('topic {}: {}'.format(i, ' '.join(topic_words)))
-  outfile.write('topic {}: {}'.format(i, ' '.join(topic_words)))
-  outfile.write('\n')
-  print()
-
-outfile.close()
+hymns['Content'] = \
+  hymns['Content'].map(lambda x: re.sub('[,\.!?]', '', x))
