@@ -1,12 +1,11 @@
 import os
-import numpy as np
-import lda 
 import nltk
-nltk.download('stopwords')
-from nltk.corpus import stopwords
 import csv
 import pandas as pd
+
 import spacey
+from spacy import displacy
+NER = spacy.load("en_core_web_sm")
 
 filelocation = input("Input file location: ")
 name = input("Desired file name with .csv: ")
@@ -51,3 +50,11 @@ with open('new_hymn_cleaned.txt', 'r') as file:
 
 with open('old_hymn_cleaned.txt', 'r') as file:
     oldhymns = file.read()
+
+new1 = NER(newhymns)
+old1 = NER(oldhymns)
+
+displacy.serve(old1, style="ent")
+displacy.serve(new1, style="ent")
+
+# http://localhost:5000/
