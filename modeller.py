@@ -29,10 +29,7 @@ df.to_csv(name, index=False)
 newhymns = pd.read_csv('new_hymns.csv')
 oldhymns = pd.read_csv('oldhymns.csv')
 
-oldhymns['Content'] = oldhymns['Content'].str.replace('[^\w\s]', '')
-oldhymns['Content'] = oldhymns['Content'].str.replace('\d+', '')
-
-newhymns['Content'] = newhymns['Content'].str.replace('[^\w\s]', '')
+newhymns['Content'] = newhymns['Content'].str.replace('\r', '')
 newhymns['Content'] = newhymns['Content'].str.replace('\d+', '')
 
 with open('old_hymn_cleaned.txt', 'w', encoding = 'latin-1') as f:
