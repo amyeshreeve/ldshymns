@@ -73,3 +73,4 @@ for i in oldpeople:
     if i in olddict: olddict[i] += 1
     else: olddict[i] = 1
 
+dict(sorted(olddict.items(), key=lambda item: item[1]))
