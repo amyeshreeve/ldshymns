@@ -55,3 +55,21 @@ displacy.serve(old1, style="ent")
 displacy.serve(new1, style="ent")
 
 # http://localhost:5000/
+
+oldentities = {key: list(g) for key, g in groupby(sorted(olddoc.ents, key=lambda x: x.label_), lambda x: x.label_)}
+newentities = {key: list(g) for key, g in groupby(sorted(newdoc.ents, key=lambda x: x.label_), lambda x: x.label_)}
+
+print(oldentities['LOC'])
+
+# iterate over for unique tokens
+# compare
+
+oldpeople = oldentities['PERSON']
+oldpeople = map(str, oldpeople)
+oldpeople = list(oldpeople)
+olddict = {}
+
+for i in oldpeople:
+    if i in olddict: olddict[i] += 1
+    else: olddict[i] = 1
+
