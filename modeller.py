@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 from itertools import *
 
-import spacey
+import spacy
 from spacy import displacy
 NER = spacy.load("en_core_web_sm")
 
