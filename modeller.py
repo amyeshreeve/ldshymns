@@ -75,3 +75,19 @@ for i in oldpeople:
     else: olddict[i] = 1
 
 dict(sorted(olddict.items(), key=lambda item: item[1]))
+
+# make token entities into df
+
+oldents = []
+old_attributes = [[ent.text,ent.label_] for ent in old1.ents]
+old_df = pd.DataFrame(old_attributes, columns=(["word", "label"]))
+old_df.to_excel("old_entities.xlsx")
+
+newents = []
+new_attributes = [[ent.text,ent.label_] for ent in new1.ents]
+new_df = pd.DataFrame(new_attributes, columns=(["word", "label"]))
+new_df.to_excel("new_entities.xlsx")
+
+#reimport cleaned data
+#geocode
+#map
