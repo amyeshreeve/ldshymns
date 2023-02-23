@@ -56,43 +56,60 @@ displacy.serve(old1, style="ent")
 displacy.serve(new1, style="ent")
 
 # http://localhost:5000/
-
-oldentities = {key: list(g) for key, g in groupby(sorted(old1.ents, key=lambda x: x.label_), lambda x: x.label_)}
-newentities = {key: list(g) for key, g in groupby(sorted(new1.ents, key=lambda x: x.label_), lambda x: x.label_)}
-
-print(oldentities['LOC'])
-
-# iterate over for unique tokens
-# compare
-
-oldpeople = oldentities['PERSON']
-oldpeople = map(str, oldpeople)
-oldpeople = list(oldpeople)
-olddict = {}
-
-for i in oldpeople:
-    if i in olddict: olddict[i] += 1
-    else: olddict[i] = 1
-
-dict(sorted(olddict.items(), key=lambda item: item[1]))
-
 # make token entities into df
 
 oldents = []
 old_attributes = [[ent.text,ent.label_] for ent in old1.ents]
 old_df = pd.DataFrame(old_attributes, columns=(["word", "label"]))
-old_df.to_excel("old_entities.xlsx")
 
 newents = []
 new_attributes = [[ent.text,ent.label_] for ent in new1.ents]
 new_df = pd.DataFrame(new_attributes, columns=(["word", "label"]))
-new_df.to_excel("new_entities.xlsx")
 
 #reimport cleaned data
 
 new_locs = new_df.loc[new_df[1].isin(["LOC", "GPE"])]
 old_locs = old_df.loc[old_df[1].isin(["LOC", "GPE"])]
+old_locs = old_locs.rename(columns={0:'Location', 1:'Tag'})
+old_locs = old_locs.drop(columns=["Unnamed: 0"])
+
+new_locs = new_locs.rename(columns={0:'Location', 1:'Tag'})
+new_locs = new_locs.drop(columns=["Unnamed: 0"])
 
 #geocode
 
+import geopandas as gpd 
+import geopy 
+import matplotlib.pyplot as plt
+from geopy.extra.rate_limiter import RateLimiter
+
+locator = geopy.geocoders.Nominatim(user_agent=”mygeocoder”)
+geocode = RateLimiter(locator.geocode, min_delay_seconds=1)
+
+new_locs['address'] = new_locs['Location'].apply(geocode)
+old_locs['address'] = old_locs['Location'].apply(geocode)
+
+new_locs['coordinates'] = new_locs['address'].apply(lambda loc: tuple(loc.point) if loc else None)
+new_locs[['latitude', 'longitude', 'altitude']] = pd.DataFrame(new_locs['coordinates'].tolist(), index=new_locs.index)
+
+old_locs['coordinates'] = old_locs['address'].apply(lambda loc: tuple(loc.point) if loc else None)
+old_locs[['latitude', 'longitude', 'altitude']] = pd.DataFrame(old_locs['coordinates'].tolist(), index=old_locs.index)
+
 #map
+
+import folium
+from folium.plugins import FastMarkerCluster
+
+folium_map = folium.Map(location=[59.338315,18.089960],
+  zoom_start=2,
+  tiles='CartoDB dark_matter')
+
+FastMarkerCluster(data=list(zip(old_locs['latitude'].values, old_locs['longitude'].values))).add_to(folium_map)
+folium.LayerControl().add_to(folium_map)
+old_output = "old_hymnbook_map.html"
+folium_map.save(old_output)
+
+FastMarkerCluster(data=list(zip(new_locs['latitude'].values, new_locs['longitude'].values))).add_to(folium_map)
+folium.LayerControl().add_to(folium_map)
+new_output = "new_hymnbook_map.html"
+folium_map.save(new_output)
