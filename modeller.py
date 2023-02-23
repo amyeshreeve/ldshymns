@@ -2,6 +2,7 @@ import os
 import nltk
 import csv
 import pandas as pd
+from itertools import *
 
 import spacey
 from spacy import displacy
@@ -56,8 +57,8 @@ displacy.serve(new1, style="ent")
 
 # http://localhost:5000/
 
-oldentities = {key: list(g) for key, g in groupby(sorted(olddoc.ents, key=lambda x: x.label_), lambda x: x.label_)}
-newentities = {key: list(g) for key, g in groupby(sorted(newdoc.ents, key=lambda x: x.label_), lambda x: x.label_)}
+oldentities = {key: list(g) for key, g in groupby(sorted(old1.ents, key=lambda x: x.label_), lambda x: x.label_)}
+newentities = {key: list(g) for key, g in groupby(sorted(new1.ents, key=lambda x: x.label_), lambda x: x.label_)}
 
 print(oldentities['LOC'])
 
