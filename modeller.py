@@ -89,5 +89,10 @@ new_df = pd.DataFrame(new_attributes, columns=(["word", "label"]))
 new_df.to_excel("new_entities.xlsx")
 
 #reimport cleaned data
+
+new_locs = new_df.loc[new_df[1].isin(["LOC", "GPE"])]
+old_locs = old_df.loc[old_df[1].isin(["LOC", "GPE"])]
+
 #geocode
+
 #map
